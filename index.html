@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Finance Dashboard - Ethiopian Calendar</title>
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#03001C">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -742,8 +745,17 @@
         <p>© 2026 VITA. All rights reserved.</p>
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript Logic & PWA Service Worker Registration -->
     <script>
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => { console.log('Service Worker Registered!', reg); })
+                    .catch((err) => { console.log('Service Worker Registration Failed:', err); });
+            });
+        }
+
         let transactions = JSON.parse(localStorage.getItem('vita_transactions_eth_v7')) || [];
         let currentSavingsGoal = parseFloat(localStorage.getItem('vita_savings_goal')) || 5000;
         let currentLang = localStorage.getItem('vita_app_lang') || 'am';
