@@ -1077,6 +1077,7 @@
                 if(tx.type === 'expense') expense += tx.amount;
                 if(tx.type === 'savings') savings += tx.amount;
             });
+            // Total Balance = Income - Expense (Savings is blocked/deducted from income, so it is NOT added to balance)
             return { income, expense, savings, balance: income - expense };
         }
 
