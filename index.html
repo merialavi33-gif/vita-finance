@@ -745,22 +745,29 @@
         <p>© 2026 VITA. All rights reserved.</p>
     </div>
 
-    <!-- JavaScript Logic & PWA Service Worker Registration -->
-    <script>
-        // Service Worker Registration for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then((reg) => { console.log('Service Worker Registered!', reg); })
-                    .catch((err) => { console.log('Service Worker Registration Failed:', err); });
-            });
-        }
+    <!-- Firebase & App JavaScript Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let transactions = JSON.parse(localStorage.getItem('vita_transactions_eth_v7')) || [];
-        let currentSavingsGoal = parseFloat(localStorage.getItem('vita_savings_goal')) || 5000;
+        // የሰጡት የ Firebase Config ውቅረት
+        const firebaseConfig = {
+          apiKey: "AIzaSyC1ya0dj-CRy6dGj2W2WlN1BWXOmwwAE_A",
+          authDomain: "vita-finance-db.firebaseapp.com",
+          projectId: "vita-finance-db",
+          storageBucket: "vita-finance-db.firebasestorage.app",
+          messagingSenderId: "648369927272",
+          appId: "1:648369927272:web:9f9ff4a9d4705f7825f7dd",
+          measurementId: "G-0MLH9SRZFK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let transactions = [];
+        let currentSavingsGoal = 5000;
         let currentLang = localStorage.getItem('vita_app_lang') || 'am';
         let selectedType = 'income';
-
         let onConfirmAction = null;
 
         const ethMonthsAm = ["መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"];
@@ -1077,7 +1084,6 @@
                 if(tx.type === 'expense') expense += tx.amount;
                 if(tx.type === 'savings') savings += tx.amount;
             });
-            // Balance = Income - (Expense + Savings), so savings acts like an expense and deducts from balance
             return { income, expense, savings, balance: income - (expense + savings) };
         }
 
@@ -1167,12 +1173,17 @@
         });
         document.getElementById('close-goal-modal').addEventListener('click', () => { goalModal.style.display = 'none'; });
 
-        document.getElementById('goal-form').addEventListener('submit', (e) => {
+        // የቁጠባ ግብን ወደ Firebase ማስቀመጥ
+        document.getElementById('goal-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newGoal = parseFloat(document.getElementById('goal-target-input').value);
             if (newGoal > 0) {
                 currentSavingsGoal = newGoal;
-                localStorage.setItem('vita_savings_goal', currentSavingsGoal);
+                try {
+                    await setDoc(doc(db, "settings", "savingsGoal"), { amount: currentSavingsGoal });
+                } catch (err) {
+                    console.error("Error saving goal to Firebase:", err);
+                }
                 goalModal.style.display = 'none';
                 updateDashboard();
             }
@@ -1224,6 +1235,7 @@
             if (e.target === confirmModal) confirmModal.style.display = 'none';
         });
 
+        // ትራንዛክሽን ወደ Firebase Firestore ማስገባት
         document.getElementById('transaction-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const ethMonthIdx = parseInt(document.getElementById('eth-trans-month').value);
@@ -1236,11 +1248,10 @@
             const title = translations[currentLang].save_confirm_title;
             const msg = translations[currentLang].save_confirm_msg.replace('{amount}', amount);
 
-            showConfirmationModal(title, msg, () => {
+            showConfirmationModal(title, msg, async () => {
                 const dateFormatted = `${getEthMonths()[ethMonthIdx]} ${ethDay}, ${ethYear}`;
 
                 const newTx = {
-                    id: Date.now(),
                     type: selectedType,
                     ethMonthIdx,
                     ethDay,
@@ -1248,18 +1259,43 @@
                     date: dateFormatted,
                     amount,
                     category,
-                    note
+                    note,
+                    createdAt: Date.now()
                 };
 
-                transactions.push(newTx);
-                localStorage.setItem('vita_transactions_eth_v7', JSON.stringify(transactions));
+                try {
+                    await addDoc(collection(db, "transactions"), newTx);
+                    await fetchTransactionsFromFirebase();
+                } catch (err) {
+                    console.error("Error adding transaction:", err);
+                }
 
                 document.getElementById('transaction-form').reset();
                 updateCategoryDropdown(selectedType);
                 addModal.style.display = 'none';
-                updateDashboard();
             });
         });
+
+        // ከ Firebase መረጃዎችን ማምጣት
+        async function fetchTransactionsFromFirebase() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "transactions"));
+                transactions = [];
+                querySnapshot.forEach((docItem) => {
+                    transactions.push({ id: docItem.id, ...docItem.data() });
+                });
+
+                // የቁጠባ ግብ ማምጣት
+                const goalDoc = await getDoc(doc(db, "settings", "savingsGoal"));
+                if (goalDoc.exists()) {
+                    currentSavingsGoal = goalDoc.data().amount;
+                }
+
+                updateDashboard();
+            } catch (err) {
+                console.error("Error fetching from Firebase:", err);
+            }
+        }
 
         function updateDashboard() {
             const currentTxs = filterTransactionsByRange(transactions, currentFilterRange);
@@ -1369,7 +1405,7 @@
                 return;
             }
 
-            filtered.reverse().forEach(tx => {
+            filtered.sort((a, b) => b.createdAt - a.createdAt).forEach(tx => {
                 const item = document.createElement('div');
                 item.className = 'bg-slate-900 border border-purple-500/20 rounded-xl p-3 flex justify-between items-center';
                 
@@ -1385,7 +1421,7 @@
                     </div>
                     <div class="text-right">
                         <span class="text-xs font-semibold ${colorClass}">${sign} ${tx.amount.toLocaleString()}br</span>
-                        <br><button onclick="deleteTxPrompt(${tx.id})" class="text-[9px] text-rose-500 hover:underline">ሰርዝ</button>
+                        <br><button onclick="window.deleteTxPrompt('${tx.id}')" class="text-[9px] text-rose-500 hover:underline">ሰርዝ</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -1396,11 +1432,14 @@
             const title = translations[currentLang].delete_confirm_title;
             const msg = translations[currentLang].delete_confirm_msg;
 
-            showConfirmationModal(title, msg, () => {
-                transactions = transactions.filter(tx => tx.id !== id);
-                localStorage.setItem('vita_transactions_eth_v7', JSON.stringify(transactions));
-                updateDashboard();
-                renderTransactionsList(document.getElementById('search-input').value);
+            showConfirmationModal(title, msg, async () => {
+                try {
+                    await deleteDoc(doc(db, "transactions", id));
+                    await fetchTransactionsFromFirebase();
+                    renderTransactionsList(document.getElementById('search-input').value);
+                } catch (err) {
+                    console.error("Error deleting transaction:", err);
+                }
             });
         }
 
@@ -1409,6 +1448,7 @@
         });
 
         updateLanguageUI();
+        fetchTransactionsFromFirebase();
     </script>
 </body>
 </html>
