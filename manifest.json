@@ -1,0 +1,16 @@
+{
+  "name": "VITA Finance Dashboard",
+  "short_name": "VITA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#03001C",
+  "theme_color": "#03001C",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
