@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0C032F" />
+      <stop offset="100%" stop-color="#03001C" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="115" fill="url(#bgGrad)" />
+  <circle cx="256" cy="256" r="160" fill="none" stroke="url(#accentGrad)" stroke-width="16" opacity="0.4" />
+  <path d="M180 290 L230 220 L280 260 L330 180" fill="none" stroke="url(#accentGrad)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="330" cy="180" r="12" fill="#4ADE80" />
+  <text x="256" y="375" font-family="'Poppins', sans-serif" font-size="64" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">VITA</text>
+</svg>
