@@ -126,7 +126,7 @@
             padding-bottom: 30px;
         }
 
-        /* Total Balance Card */
+        /* Balance Card */
         .total-balance-card {
             background: linear-gradient(145deg, #0C032F 0%, #06011A 100%);
             border-radius: var(--border-radius);
@@ -185,7 +185,7 @@
             cursor: pointer;
         }
 
-        /* Summary Cards - Matching image glow and border style */
+        /* Summary Cards */
         .summary-cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -548,10 +548,10 @@
     <!-- Scrollable Body Container -->
     <div class="scroll-container">
         <div class="screen">
-            <!-- Total Balance Card -->
+            <!-- Balance Card -->
             <div class="total-balance-card">
                 <div class="balance-info">
-                    <p class="label" data-i18n="total_balance">Total Balance</p>
+                    <p class="label" data-i18n="total_balance">Balance</p>
                     <h2 id="total-balance-display">0br</h2>
                     <div class="trend" id="total-balance-trend"></div>
                     <div class="buttons-group">
@@ -768,7 +768,7 @@
 
         const translations = {
             am: {
-                total_balance: "Total Balance",
+                total_balance: "Balance",
                 add_tx: "ግብይት መዝግብ",
                 details: "ዝርዝር",
                 income: "ገቢ",
@@ -802,7 +802,7 @@
                 yes: "አዎ"
             },
             en: {
-                total_balance: "Total Balance",
+                total_balance: "Balance",
                 add_tx: "add transaction",
                 details: "details",
                 income: "Income",
@@ -1077,8 +1077,8 @@
                 if(tx.type === 'expense') expense += tx.amount;
                 if(tx.type === 'savings') savings += tx.amount;
             });
-            // Total Balance = Income - Expense (Savings is blocked/deducted from income, so it is NOT added to balance)
-            return { income, expense, savings, balance: income - expense };
+            // Balance = Income - (Expense + Savings), so savings acts like an expense and deducts from balance
+            return { income, expense, savings, balance: income - (expense + savings) };
         }
 
         function renderTrendUI(currentVal, prevVal, elementId, isExpense = false, showVsText = false) {
@@ -1376,7 +1376,7 @@
                 let colorClass = 'text-emerald-400';
                 let sign = '+';
                 if(tx.type === 'expense') { colorClass = 'text-rose-400'; sign = '-'; }
-                if(tx.type === 'savings') { colorClass = 'text-sky-400'; sign = '+'; }
+                if(tx.type === 'savings') { colorClass = 'text-sky-400'; sign = '-'; }
 
                 item.innerHTML = `
                     <div>
