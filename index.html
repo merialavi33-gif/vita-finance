@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Finance Dashboard - Ethiopian Calendar</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #03001C;
+            --main-card-bg: #0C032F;
+            --main-text-color: #FFFFFF;
+            --secondary-text-color: #A0A0A0;
+            --green: #4ADE80;
+            --red: #FB7185;
+            --blue: #38BDF8;
+            --primary-accent: #A855F7;
+            --teal-accent: #2DD4BF;
+            --border-radius: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            background-color: var(--bg-color) !important;
+            color: var(--main-text-color) !important;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Fixed Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(3, 0, 28, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--main-text-color);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-date {
+            font-size: 10px;
+            color: var(--teal-accent);
+            background: rgba(45, 212, 191, 0.1);
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(45, 212, 191, 0.3);
+        }
+
+        .lang-btn {
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Fixed Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: rgba(3, 0, 28, 0.98);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-top: 1px solid rgba(168, 85, 247, 0.2);
+            font-size: 12px;
+            color: var(--secondary-text-color);
+        }
+
+        /* Scrollable Container */
+        .scroll-container {
+            position: absolute;
+            top: 60px;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            padding: 15px;
+        }
+
+        .screen {
+            width: 100%;
+            max-width: 100%;
+            padding-bottom: 30px;
+        }
+
+        /* Total Balance Card */
+        .total-balance-card {
+            background: linear-gradient(145deg, #0C032F 0%, #06011A 100%);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 1.5px solid rgba(168, 85, 247, 0.35);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), inset 0 0 15px rgba(168, 85, 247, 0.05);
+            margin-bottom: 15px;
+        }
+
+        .balance-info {
+            width: 100%;
+            z-index: 2;
+        }
+
+        .total-balance-card p.label {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            margin-bottom: 5px;
+        }
+
+        .total-balance-card h2 {
+            font-size: 32px;
+            color: var(--green);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .total-balance-card .trend {
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: inline-flex;
+            font-size: 11px;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .buttons-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .balance-btn {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(12, 3, 47, 0));
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            border-radius: 15px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* Summary Cards - Matching image glow and border style */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .summary-card {
+            background: linear-gradient(145deg, #0C032F 0%, #06011A 100%);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.02);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary-card.income { 
+            border: 1.5px solid rgba(74, 222, 128, 0.4); 
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.1), inset 0 0 10px rgba(74, 222, 128, 0.05);
+        }
+        .summary-card.expenses { 
+            border: 1.5px solid rgba(251, 113, 133, 0.4); 
+            box-shadow: 0 0 15px rgba(251, 113, 133, 0.1), inset 0 0 10px rgba(251, 113, 133, 0.05);
+        }
+        .summary-card.savings { 
+            border: 1.5px solid rgba(56, 189, 248, 0.4); 
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.1), inset 0 0 10px rgba(56, 189, 248, 0.05);
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .income .card-icon svg { color: var(--green); }
+        .expenses .card-icon svg { color: var(--red); }
+        .savings .card-icon svg { color: var(--blue); }
+
+        .summary-card p.label {
+            font-size: 12px;
+            color: var(--secondary-text-color);
+        }
+
+        .summary-card h3 {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .summary-card.income h3 { color: var(--green); }
+        .summary-card.expenses h3 { color: var(--red); }
+        .summary-card.savings h3 { color: var(--blue); }
+
+        .summary-card .subtext {
+            font-size: 10px;
+            color: var(--secondary-text-color);
+        }
+
+        .summary-card .trend {
+            font-size: 10px;
+            display: inline-flex;
+            gap: 2px;
+            align-items: center;
+        }
+
+        /* Expenses Breakdown Card */
+        .breakdown-card {
+            background: linear-gradient(145deg, #0C032F 0%, #06011A 100%);
+            border-radius: var(--border-radius);
+            padding: 18px;
+            margin-bottom: 15px;
+            position: relative;
+            border: 1.5px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-header h2 { font-size: 16px; color: var(--main-text-color); }
+        .card-header select {
+            background-color: #03001C;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 10px;
+            padding: 4px 8px;
+            color: var(--teal-accent);
+            font-size: 11px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .breakdown-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media(min-width: 380px) {
+            .breakdown-content {
+                display: grid;
+                grid-template-columns: 1.1fr 0.9fr;
+                align-items: center;
+            }
+        }
+
+        .breakdown-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .list-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot-icon { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        
+        .housing .dot-icon { background-color: #7C3AED; }
+        .housing p, .housing span { color: #7C3AED !important; font-weight: 500; }
+
+        .food .dot-icon { background-color: #F87171; }
+        .food p, .food span { color: #F87171 !important; font-weight: 500; }
+
+        .saving-cat .dot-icon { background-color: #38BDF8; }
+        .saving-cat p, .saving-cat span { color: #38BDF8 !important; font-weight: 500; }
+
+        .shopping .dot-icon { background-color: #4ADE80; }
+        .shopping p, .shopping span { color: #4ADE80 !important; font-weight: 500; }
+
+        .entertainment .dot-icon { background-color: #FBBF24; }
+        .entertainment p, .entertainment span { color: #FBBF24 !important; font-weight: 500; }
+
+        .other .dot-icon { background-color: #9CA3AF; }
+        .other p, .other span { color: #9CA3AF !important; font-weight: 500; }
+
+        .pie-chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pie-chart-base {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#333 0deg 360deg);
+            position: relative;
+        }
+
+        .donut-hole {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background-color: var(--main-card-bg);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2px;
+        }
+
+        .donut-hole span.amount { font-size: 10px; font-weight: 600; color: var(--main-text-color); }
+        .donut-hole span.label { font-size: 8px; color: var(--secondary-text-color); }
+
+        /* Monthly Goal Card */
+        .monthly-goal-card {
+            background: linear-gradient(145deg, #0C032F 0%, #06011A 100%);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            padding-bottom: 22px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1.5px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .monthly-goal-card:hover {
+            border-color: rgba(168, 85, 247, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .goal-left { display: flex; align-items: center; gap: 12px; }
+        .goal-icon-bg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(168, 85, 247, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            flex-shrink: 0;
+        }
+
+        .goal-text-info h3 { font-size: 14px; font-weight: 600; color: var(--main-text-color); }
+        .goal-text-info p { font-size: 11px; color: var(--secondary-text-color); }
+
+        .progress-bar-container {
+            position: absolute;
+            bottom: 8px;
+            left: 15px;
+            right: 15px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background-color: var(--teal-accent);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        .goal-right-info {
+            text-align: right;
+        }
+
+        .percent-text {
+            color: var(--teal-accent);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .values-text {
+            font-size: 10px;
+            color: var(--secondary-text-color);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(3, 0, 28, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background-color: var(--main-card-bg);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Warning Confirm Modal Custom Style */
+        .confirm-modal-content {
+            background-color: #0C032F;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 320px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .warning-icon-circle {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+        }
+
+        .confirm-btn-cancel {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #E2E8F0;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .confirm-btn-yes {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        svg { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Header -->
+    <div class="header">
+        <h1>VITA</h1>
+        <div class="header-right">
+            <div class="header-date" id="header-today-date">ዛሬ: ...</div>
+            <button class="lang-btn" id="lang-toggle-btn">EN</button>
+        </div>
+    </div>
+
+    <!-- Scrollable Body Container -->
+    <div class="scroll-container">
+        <div class="screen">
+            <!-- Total Balance Card -->
+            <div class="total-balance-card">
+                <div class="balance-info">
+                    <p class="label" data-i18n="total_balance">Total Balance</p>
+                    <h2 id="total-balance-display">0br</h2>
+                    <div class="trend" id="total-balance-trend"></div>
+                    <div class="buttons-group">
+                        <button class="balance-btn" id="open-add-modal">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                            <span data-i18n="add_tx">add transaction</span>
+                        </button>
+                        <button class="balance-btn" id="open-details-modal">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+                            <span data-i18n="details">details</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card income" id="card-income">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m7-7-7-7-7 7"></path></svg></div>
+                    <p class="label" data-i18n="income">Income</p>
+                    <h3 id="summary-income">0br</h3>
+                    <p class="subtext" id="subtext-income" data-i18n="this_month">በዚህ ወር</p>
+                    <div class="trend" id="trend-income">0%</div>
+                </div>
+                <div class="summary-card expenses" id="card-expense">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+                    <p class="label" data-i18n="expenses">Expenses</p>
+                    <h3 id="summary-expense">0br</h3>
+                    <p class="subtext" id="subtext-expense" data-i18n="this_month">በዚህ ወር</p>
+                    <div class="trend" id="trend-expense">0%</div>
+                </div>
+                <div class="summary-card savings" id="card-savings">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"/></svg></div>
+                    <p class="label" data-i18n="savings">Savings</p>
+                    <h3 id="summary-savings">0br</h3>
+                    <p class="subtext" id="subtext-savings" data-i18n="this_month">በዚህ ወር</p>
+                    <div class="trend" id="trend-savings">0%</div>
+                </div>
+            </div>
+
+            <!-- Expenses Breakdown Card -->
+            <div class="breakdown-card">
+                <div class="card-header">
+                    <h2 data-i18n="breakdown_title">Expenses Breakdown</h2>
+                    <select id="ethiopian-time-select"></select>
+                </div>
+                <div class="breakdown-content">
+                    <div class="breakdown-list" id="breakdown-list-container"></div>
+                    <div class="pie-chart-container">
+                        <div class="pie-chart-base" id="pie-chart-base">
+                            <div class="donut-hole">
+                                <span class="amount" id="breakdown-total-amount">0br</span>
+                                <span class="label" data-i18n="total">Total</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Monthly Goal Card -->
+            <div class="monthly-goal-card" id="open-goal-modal">
+                <div class="goal-left">
+                    <div class="goal-icon-bg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    </div>
+                    <div class="goal-text-info">
+                        <h3 data-i18n="goal_title">Monthly Goal</h3>
+                        <p id="goal-subtext">Save 0br this month</p>
+                    </div>
+                </div>
+                <div class="goal-right-info">
+                    <span class="percent-text" id="goal-percent-display">0%</span>
+                    <p class="values-text" id="goal-values-display">0br / 0br</p>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="goal-progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Set Monthly Goal Modal -->
+    <div class="modal-overlay" id="goal-modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-semibold flex items-center gap-2" data-i18n="set_goal_title">
+                    🎯 የወር የቁጠባ ግብ ማስተካከያ
+                </h3>
+                <button id="close-goal-modal" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <form id="goal-form" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1" data-i18n="target_amount">የወሩ የቁጠባ ግብ (ብር)</label>
+                    <input type="number" id="goal-target-input" placeholder="5000" class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-xl text-xs transition mt-2" data-i18n="save_btn">
+                    ግብ አስቀምጥ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Transaction Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-semibold flex items-center gap-2" data-i18n="add_tx_title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    ገቢ / ወጪ መመዝገቢያ
+                </h3>
+                <button id="close-add-modal" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button type="button" class="type-tab py-2 text-xs font-medium rounded-xl bg-emerald-500 text-white transition" data-type="income" data-i18n="income">ገቢ</button>
+                <button type="button" class="type-tab py-2 text-xs font-medium rounded-xl bg-slate-800 text-slate-300 transition" data-type="expense" data-i18n="expenses">ወጪ</button>
+                <button type="button" class="type-tab py-2 text-xs font-medium rounded-xl bg-slate-800 text-slate-300 transition" data-type="savings" data-i18n="savings">ቁጠባ</button>
+            </div>
+
+            <form id="transaction-form" class="space-y-3">
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1" data-i18n="month">ወር</label>
+                        <select id="eth-trans-month" class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-2 py-2 text-xs text-white focus:outline-none" required></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1" data-i18n="day">ቀን (1-30)</label>
+                        <input type="number" id="eth-trans-day" min="1" max="30" class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-2 py-2 text-xs text-white focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1" data-i18n="year">ዓ.ም</label>
+                        <input type="number" id="eth-trans-year" class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-2 py-2 text-xs text-white focus:outline-none" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1" data-i18n="amount">መጠን (ብር)</label>
+                    <input type="number" id="trans-amount" placeholder="1500" class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1" data-i18n="category">ምድብ (Category)</label>
+                    <select id="trans-category" class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none" required></select>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1" data-i18n="note">ማስታወሻ (አማራጭ)</label>
+                    <input type="text" id="trans-note" placeholder="Note..." class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2.5 rounded-xl text-xs transition mt-2" data-i18n="save_btn">
+                    አስቀምጥ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-overlay" id="details-modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-semibold flex items-center gap-2" data-i18n="details_title">
+                    📄 የግብይቶች ዝርዝር
+                </h3>
+                <button id="close-details-modal" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div class="mb-3">
+                <input type="text" id="search-input" placeholder="ምድብ፣ ማስታወሻ ወይም ቀን ፈልግ..." class="w-full bg-slate-900 border border-purple-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+            </div>
+            <div id="transactions-list-container" class="space-y-2 max-h-[60vh] overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- Brand Colored Warning Confirmation Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="confirm-modal-content">
+            <div class="warning-icon-circle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-2" id="confirm-modal-title">Delete Transaction</h3>
+            <p class="text-xs text-gray-300 mb-5" id="confirm-modal-msg">Are you sure you want to delete this record?</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="confirm-btn-cancel" id="confirm-btn-cancel">Cancel</button>
+                <button class="confirm-btn-yes" id="confirm-btn-yes">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Footer -->
+    <div class="footer">
+        <p>© 2026 VITA. All rights reserved.</p>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let transactions = JSON.parse(localStorage.getItem('vita_transactions_eth_v7')) || [];
+        let currentSavingsGoal = parseFloat(localStorage.getItem('vita_savings_goal')) || 5000;
+        let currentLang = localStorage.getItem('vita_app_lang') || 'am';
+        let selectedType = 'income';
+
+        let onConfirmAction = null;
+
+        const ethMonthsAm = ["መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት", "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜን"];
+        const ethMonthsEn = ["Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit", "Megabit", "Miyazia", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume"];
+
+        const translations = {
+            am: {
+                total_balance: "Total Balance",
+                add_tx: "ግብይት መዝግብ",
+                details: "ዝርዝር",
+                income: "ገቢ",
+                expenses: "ወጪ",
+                savings: "ቁጠባ",
+                this_month: "በዚህ ወር",
+                breakdown_title: "የወጪዎች ክፍፍል",
+                total: "ድምር",
+                goal_title: "የወር ቁጠባ ግብ",
+                save_goal_p: "በዚህ ወር {amount}br መቆጠብ",
+                set_goal_title: "🎯 የወር የቁጠባ ግብ ማስተካከያ",
+                target_amount: "የወሩ የቁጠባ ግብ (ብር)",
+                save_btn: "አስቀምጥ",
+                add_tx_title: "ገቢ / ወጪ መመዝገቢያ",
+                month: "ወር",
+                day: "ቀን",
+                year: "ዓ.ም",
+                amount: "መጠን (ብር)",
+                category: "ምድብ",
+                note: "ማስታወሻ (አማራጭ)",
+                details_title: "📄 የግብይቶች ዝርዝር",
+                today: "ዛሬ",
+                all_time: "የሁሉም ጊዜ",
+                full_year: "የ{year} ዓ.ም ሙሉ ዳታ",
+                vs_last_month: "ከባለፈው ወር ጋር",
+                save_confirm_title: "ግብይት ማስቀመጫ",
+                save_confirm_msg: "የገቡትን {amount} ETB ማስቀመጥ ይፈልጋሉ?",
+                delete_confirm_title: "መረጃ መሰረዣ",
+                delete_confirm_msg: "ይህን የግብይት መረጃ እርግጠኛ ሆነው መሰረዝ ይፈልጋሉ?",
+                cancel: "ሰርዝ",
+                yes: "አዎ"
+            },
+            en: {
+                total_balance: "Total Balance",
+                add_tx: "add transaction",
+                details: "details",
+                income: "Income",
+                expenses: "Expenses",
+                savings: "Savings",
+                this_month: "This Month",
+                breakdown_title: "Expenses Breakdown",
+                total: "Total",
+                goal_title: "Monthly Goal",
+                save_goal_p: "Save {amount}br this month",
+                set_goal_title: "🎯 Set Monthly Savings Goal",
+                target_amount: "Target Savings Goal (BR)",
+                save_btn: "Save Goal",
+                add_tx_title: "Add Transaction",
+                month: "Month",
+                day: "Day",
+                year: "Year",
+                amount: "Amount (BR)",
+                category: "Category",
+                note: "Note (Optional)",
+                details_title: "📄 Transaction Details",
+                today: "Today",
+                all_time: "All Time",
+                full_year: "Full Year {year}",
+                vs_last_month: "vs last month",
+                save_confirm_title: "Save Transaction",
+                save_confirm_msg: "Save entered amount ({amount} ETB)?",
+                delete_confirm_title: "Delete Transaction",
+                delete_confirm_msg: "Are you sure you want to delete this record?",
+                cancel: "Cancel",
+                yes: "Yes"
+            }
+        };
+
+        function getEthMonths() {
+            return currentLang === 'am' ? ethMonthsAm : ethMonthsEn;
+        }
+
+        function getPreciseEthiopianDate(gDate) {
+            const date = new Date(gDate);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+
+            let ethYear = year - 8;
+            let isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+            let newYearDay = isLeap ? 12 : 11;
+
+            if (month < 9 || (month === 9 && day < newYearDay)) {
+                ethYear = year - 8;
+            } else {
+                ethYear = year - 7;
+            }
+
+            if (year === 2026 && month === 10 && day === 11) {
+                return { year: 2019, month: 2, monthName: getEthMonths()[1], day: 1 };
+            }
+
+            let ethMonth = 1;
+            let ethDay = 1;
+
+            if (month === 9) {
+                if (day >= newYearDay) { ethMonth = 1; ethDay = day - newYearDay + 1; }
+                else { ethMonth = 13; ethDay = day + (isLeap ? 6 : 5); }
+            } else if (month === 10) {
+                if (day >= 11) { ethMonth = 2; ethDay = day - 10; }
+                else { ethMonth = 1; ethDay = day + 20; }
+            } else if (month === 11) {
+                if (day >= 10) { ethMonth = 3; ethDay = day - 9; }
+                else { ethMonth = 2; ethDay = day + 21; }
+            } else if (month === 12) {
+                if (day >= 10) { ethMonth = 4; ethDay = day - 9; }
+                else { ethMonth = 3; ethDay = day + 21; }
+            } else if (month === 1) {
+                if (day >= 9) { ethMonth = 5; ethDay = day - 8; }
+                else { ethMonth = 4; ethDay = day + 22; }
+            } else if (month === 2) {
+                if (day >= 8) { ethMonth = 6; ethDay = day - 7; }
+                else { ethMonth = 5; ethDay = day + 23; }
+            } else if (month === 3) {
+                if (day >= 10) { ethMonth = 7; ethDay = day - 9; }
+                else { ethMonth = 6; ethDay = day + 21; }
+            } else if (month === 4) {
+                if (day >= 9) { ethMonth = 8; ethDay = day - 8; }
+                else { ethMonth = 7; ethDay = day + 22; }
+            } else if (month === 5) {
+                if (day >= 9) { ethMonth = 9; ethDay = day - 8; }
+                else { ethMonth = 8; ethDay = day + 22; }
+            } else if (month === 6) {
+                if (day >= 8) { ethMonth = 10; ethDay = day - 7; }
+                else { ethMonth = 9; ethDay = day + 23; }
+            } else if (month === 7) {
+                if (day >= 8) { ethMonth = 11; ethDay = day - 7; }
+                else { ethMonth = 10; ethDay = day + 23; }
+            } else if (month === 8) {
+                if (day >= 7) { ethMonth = 12; ethDay = day - 6; }
+                else { ethMonth = 11; ethDay = day + 24; }
+            }
+
+            return { year: ethYear, month: ethMonth, monthName: getEthMonths()[ethMonth - 1], day: ethDay };
+        }
+
+        const todayEth = getPreciseEthiopianDate(new Date());
+        let currentFilterRange = `m-${todayEth.year}-${todayEth.month - 1}`;
+
+        const timeSelect = document.getElementById('ethiopian-time-select');
+        const formMonthSelect = document.getElementById('eth-trans-month');
+
+        function updateLanguageUI() {
+            document.getElementById('lang-toggle-btn').textContent = currentLang === 'am' ? 'EN' : 'አማ';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+
+            document.getElementById('header-today-date').textContent = `${translations[currentLang].today}: ${getEthMonths()[todayEth.month - 1]} ${todayEth.day}, ${todayEth.year}`;
+
+            populateTimeDropdown();
+            populateFormMonths();
+            updateDashboard();
+        }
+
+        document.getElementById('lang-toggle-btn').addEventListener('click', () => {
+            currentLang = currentLang === 'am' ? 'en' : 'am';
+            localStorage.setItem('vita_app_lang', currentLang);
+            updateLanguageUI();
+        });
+
+        function populateTimeDropdown() {
+            const selectedVal = timeSelect.value || `m-${todayEth.year}-${todayEth.month - 1}`;
+            timeSelect.innerHTML = '';
+            const yearsToDisplay = [todayEth.year - 1, todayEth.year, todayEth.year + 1];
+
+            yearsToDisplay.forEach(yr => {
+                getEthMonths().forEach((mName, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = `m-${yr}-${idx}`;
+                    opt.textContent = `${mName} ${yr} ▾`;
+                    if (opt.value === selectedVal) opt.selected = true;
+                    timeSelect.appendChild(opt);
+                });
+            });
+
+            const yearOpt = document.createElement('option');
+            yearOpt.value = `year-${todayEth.year}`;
+            yearOpt.textContent = translations[currentLang].full_year.replace('{year}', todayEth.year) + ' ▾';
+            timeSelect.appendChild(yearOpt);
+
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all-time';
+            allOpt.textContent = translations[currentLang].all_time + ' ▾';
+            timeSelect.appendChild(allOpt);
+        }
+
+        function populateFormMonths() {
+            const currentSelected = formMonthSelect.value;
+            formMonthSelect.innerHTML = '';
+            getEthMonths().forEach((mName, idx) => {
+                const formOpt = document.createElement('option');
+                formOpt.value = idx;
+                formOpt.textContent = mName;
+                if (currentSelected !== "" && parseInt(currentSelected) === idx) formOpt.selected = true;
+                else if (currentSelected === "" && idx === (todayEth.month - 1)) formOpt.selected = true;
+                formMonthSelect.appendChild(formOpt);
+            });
+        }
+
+        document.getElementById('eth-trans-day').value = todayEth.day;
+        document.getElementById('eth-trans-year').value = todayEth.year;
+
+        const typeCategories = {
+            income: ["livestream", "gift", "other"],
+            expense: ["housing", "food", "shopping", "entertainment", "other"],
+            savings: ["monthly", "yearly"]
+        };
+
+        const breakdownCategoriesConfig = {
+            "housing": { class: "housing", color: "#7C3AED" },
+            "food": { class: "food", color: "#F87171" },
+            "savings": { class: "saving-cat", color: "#38BDF8" },
+            "shopping": { class: "shopping", color: "#4ADE80" },
+            "entertainment": { class: "entertainment", color: "#FBBF24" },
+            "other": { class: "other", color: "#9CA3AF" }
+        };
+
+        function formatLargeNumber(num) {
+            let formatted = '';
+            if (num >= 1e9) {
+                formatted = (num / 1e9).toFixed(2).replace(/\.00$/, '').replace(/\.0$/, '') + 'b';
+            } else if (num >= 1e6) {
+                formatted = (num / 1e6).toFixed(3).replace(/\.?0+$/, '') + 'm';
+            } else if (num >= 1e5) {
+                formatted = (num / 1e3).toFixed(3).replace(/\.?0+$/, '') + 'k';
+            } else {
+                formatted = Math.round(num) === num ? num.toLocaleString() : num.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
+            }
+            return formatted + 'br';
+        }
+
+        function updateCategoryDropdown(type) {
+            const selectEl = document.getElementById('trans-category');
+            selectEl.innerHTML = '';
+            const cats = typeCategories[type] || [];
+            cats.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+                selectEl.appendChild(opt);
+            });
+        }
+
+        updateCategoryDropdown(selectedType);
+
+        const typeTabs = document.querySelectorAll('.type-tab');
+        typeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                typeTabs.forEach(t => {
+                    t.classList.remove('bg-emerald-500', 'bg-rose-500', 'bg-sky-500', 'text-white');
+                    t.classList.add('bg-slate-800', 'text-slate-300');
+                });
+                selectedType = tab.getAttribute('data-type');
+                tab.classList.remove('bg-slate-800', 'text-slate-300');
+                if(selectedType === 'income') {
+                    tab.classList.add('bg-emerald-500', 'text-white');
+                } else if(selectedType === 'expense') {
+                    tab.classList.add('bg-rose-500', 'text-white');
+                } else if(selectedType === 'savings') {
+                    tab.classList.add('bg-sky-500', 'text-white');
+                }
+                updateCategoryDropdown(selectedType);
+            });
+        });
+
+        function filterTransactionsByRange(txList, range) {
+            return txList.filter(tx => {
+                if (range.startsWith('m-')) {
+                    const parts = range.split('-');
+                    const targetYear = parseInt(parts[1]);
+                    const targetMonthIdx = parseInt(parts[2]);
+                    return tx.ethMonthIdx === targetMonthIdx && tx.ethYear === targetYear;
+                } else if (range.startsWith('year-')) {
+                    const targetYear = parseInt(range.split('-')[1]);
+                    return tx.ethYear === targetYear;
+                }
+                return true;
+            });
+        }
+
+        function getPreviousMonthRange(range) {
+            if (range.startsWith('m-')) {
+                const parts = range.split('-');
+                let yr = parseInt(parts[1]);
+                let mIdx = parseInt(parts[2]);
+                if (mIdx === 0) {
+                    mIdx = 12;
+                    yr -= 1;
+                } else {
+                    mIdx -= 1;
+                }
+                return `m-${yr}-${mIdx}`;
+            }
+            return null;
+        }
+
+        function calculateTotals(txList) {
+            let income = 0, expense = 0, savings = 0;
+            txList.forEach(tx => {
+                if(tx.type === 'income') income += tx.amount;
+                if(tx.type === 'expense') expense += tx.amount;
+                if(tx.type === 'savings') savings += tx.amount;
+            });
+            return { income, expense, savings, balance: income - expense };
+        }
+
+        function renderTrendUI(currentVal, prevVal, elementId, isExpense = false, showVsText = false) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            const vsLabel = showVsText ? ` ${translations[currentLang].vs_last_month}` : '';
+
+            if (prevVal === 0) {
+                if (currentVal > 0) {
+                    el.className = "trend bg-emerald-500/10 text-emerald-400";
+                    el.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V4m7 7-7-7-7 7"/></svg> +100%${vsLabel}`;
+                } else {
+                    el.className = "trend bg-slate-800 text-gray-400";
+                    el.innerHTML = `0%${vsLabel}`;
+                }
+                return;
+            }
+
+            const changePercent = ((currentVal - prevVal) / prevVal) * 100;
+            const formattedPct = Math.abs(changePercent).toFixed(1) + '%';
+
+            if (changePercent > 0) {
+                const color = isExpense ? "text-rose-400 bg-rose-500/10" : "text-emerald-400 bg-emerald-500/10";
+                el.className = `trend ${color}`;
+                el.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V4m7 7-7-7-7 7"/></svg> +${formattedPct}${vsLabel}`;
+            } else if (changePercent < 0) {
+                const color = isExpense ? "text-emerald-400 bg-emerald-500/10" : "text-rose-400 bg-rose-500/10";
+                el.className = `trend ${color}`;
+                el.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m7-7-7 7-7-7"/></svg> -${formattedPct}${vsLabel}`;
+            } else {
+                el.className = "trend bg-slate-800 text-gray-400";
+                el.innerHTML = `0%${vsLabel}`;
+            }
+        }
+
+        timeSelect.addEventListener('change', (e) => {
+            currentFilterRange = e.target.value;
+            let subtext = translations[currentLang].this_month;
+            if (currentFilterRange.startsWith('m-')) {
+                const parts = currentFilterRange.split('-');
+                subtext = `${getEthMonths()[parseInt(parts[2])]} ${parts[1]}`;
+            } else if (currentFilterRange.startsWith('year-')) {
+                subtext = `${currentFilterRange.split('-')[1]}`;
+            } else {
+                subtext = translations[currentLang].all_time;
+            }
+
+            document.getElementById('subtext-income').textContent = subtext;
+            document.getElementById('subtext-expense').textContent = subtext;
+            document.getElementById('subtext-savings').textContent = subtext;
+
+            updateDashboard();
+        });
+
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmTitle = document.getElementById('confirm-modal-title');
+        const confirmMsg = document.getElementById('confirm-modal-msg');
+        const confirmCancelBtn = document.getElementById('confirm-btn-cancel');
+        const confirmYesBtn = document.getElementById('confirm-btn-yes');
+
+        function showConfirmationModal(title, msg, onConfirm) {
+            confirmTitle.textContent = title;
+            confirmMsg.textContent = msg;
+            confirmCancelBtn.textContent = translations[currentLang].cancel;
+            confirmYesBtn.textContent = translations[currentLang].yes;
+            onConfirmAction = onConfirm;
+            confirmModal.style.display = 'flex';
+        }
+
+        confirmCancelBtn.addEventListener('click', () => {
+            confirmModal.style.display = 'none';
+            onConfirmAction = null;
+        });
+
+        confirmYesBtn.addEventListener('click', () => {
+            if (onConfirmAction) onConfirmAction();
+            confirmModal.style.display = 'none';
+            onConfirmAction = null;
+        });
+
+        const goalModal = document.getElementById('goal-modal');
+        document.getElementById('open-goal-modal').addEventListener('click', () => {
+            document.getElementById('goal-target-input').value = currentSavingsGoal;
+            goalModal.style.display = 'flex';
+        });
+        document.getElementById('close-goal-modal').addEventListener('click', () => { goalModal.style.display = 'none'; });
+
+        document.getElementById('goal-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newGoal = parseFloat(document.getElementById('goal-target-input').value);
+            if (newGoal > 0) {
+                currentSavingsGoal = newGoal;
+                localStorage.setItem('vita_savings_goal', currentSavingsGoal);
+                goalModal.style.display = 'none';
+                updateDashboard();
+            }
+        });
+
+        const addModal = document.getElementById('add-modal');
+        const detailsModal = document.getElementById('details-modal');
+
+        document.getElementById('open-add-modal').addEventListener('click', () => { 
+            document.getElementById('eth-trans-month').value = todayEth.month - 1;
+            document.getElementById('eth-trans-day').value = todayEth.day;
+            document.getElementById('eth-trans-year').value = todayEth.year;
+            addModal.style.display = 'flex'; 
+        });
+        
+        document.getElementById('close-add-modal').addEventListener('click', () => { addModal.style.display = 'none'; });
+        
+        const detailsBtn = document.getElementById('open-details-modal');
+        detailsBtn.addEventListener('click', () => {
+            document.getElementById('search-input').value = '';
+            renderTransactionsList();
+            detailsModal.style.display = 'flex';
+        });
+
+        document.getElementById('card-income').addEventListener('click', () => {
+            document.getElementById('search-input').value = 'income';
+            renderTransactionsList('income');
+            detailsModal.style.display = 'flex';
+        });
+
+        document.getElementById('card-expense').addEventListener('click', () => {
+            document.getElementById('search-input').value = 'expense';
+            renderTransactionsList('expense');
+            detailsModal.style.display = 'flex';
+        });
+
+        document.getElementById('card-savings').addEventListener('click', () => {
+            document.getElementById('search-input').value = 'savings';
+            renderTransactionsList('savings');
+            detailsModal.style.display = 'flex';
+        });
+
+        document.getElementById('close-details-modal').addEventListener('click', () => { detailsModal.style.display = 'none'; });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === addModal) addModal.style.display = 'none';
+            if (e.target === detailsModal) detailsModal.style.display = 'none';
+            if (e.target === goalModal) goalModal.style.display = 'none';
+            if (e.target === confirmModal) confirmModal.style.display = 'none';
+        });
+
+        document.getElementById('transaction-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const ethMonthIdx = parseInt(document.getElementById('eth-trans-month').value);
+            const ethDay = parseInt(document.getElementById('eth-trans-day').value);
+            const ethYear = parseInt(document.getElementById('eth-trans-year').value);
+            const amount = parseFloat(document.getElementById('trans-amount').value);
+            const category = document.getElementById('trans-category').value;
+            const note = document.getElementById('trans-note').value;
+
+            const title = translations[currentLang].save_confirm_title;
+            const msg = translations[currentLang].save_confirm_msg.replace('{amount}', amount);
+
+            showConfirmationModal(title, msg, () => {
+                const dateFormatted = `${getEthMonths()[ethMonthIdx]} ${ethDay}, ${ethYear}`;
+
+                const newTx = {
+                    id: Date.now(),
+                    type: selectedType,
+                    ethMonthIdx,
+                    ethDay,
+                    ethYear,
+                    date: dateFormatted,
+                    amount,
+                    category,
+                    note
+                };
+
+                transactions.push(newTx);
+                localStorage.setItem('vita_transactions_eth_v7', JSON.stringify(transactions));
+
+                document.getElementById('transaction-form').reset();
+                updateCategoryDropdown(selectedType);
+                addModal.style.display = 'none';
+                updateDashboard();
+            });
+        });
+
+        function updateDashboard() {
+            const currentTxs = filterTransactionsByRange(transactions, currentFilterRange);
+            const currentTotals = calculateTotals(currentTxs);
+
+            const prevRange = getPreviousMonthRange(currentFilterRange);
+            const prevTxs = prevRange ? filterTransactionsByRange(transactions, prevRange) : [];
+            const prevTotals = calculateTotals(prevTxs);
+
+            document.getElementById('total-balance-display').innerText = formatLargeNumber(currentTotals.balance);
+            document.getElementById('summary-income').innerText = formatLargeNumber(currentTotals.income);
+            document.getElementById('summary-expense').innerText = formatLargeNumber(currentTotals.expense);
+            document.getElementById('summary-savings').innerText = formatLargeNumber(currentTotals.savings);
+
+            renderTrendUI(currentTotals.balance, prevTotals.balance, 'total-balance-trend', false, true);
+            renderTrendUI(currentTotals.income, prevTotals.income, 'trend-income', false, false);
+            renderTrendUI(currentTotals.expense, prevTotals.expense, 'trend-expense', true, false);
+            renderTrendUI(currentTotals.savings, prevTotals.savings, 'trend-savings', false, false);
+
+            document.getElementById('goal-subtext').textContent = translations[currentLang].save_goal_p.replace('{amount}', formatLargeNumber(currentSavingsGoal));
+            const goalPct = Math.min(100, Math.round((currentTotals.savings / currentSavingsGoal) * 100)) || 0;
+            document.getElementById('goal-percent-display').textContent = `${goalPct}%`;
+            document.getElementById('goal-values-display').textContent = `${formatLargeNumber(currentTotals.savings)} / ${formatLargeNumber(currentSavingsGoal)}`;
+            document.getElementById('goal-progress-fill').style.width = `${goalPct}%`;
+
+            updateBreakdownSection(currentTxs);
+        }
+
+        function updateBreakdownSection(filteredTxs) {
+            const listContainer = document.getElementById('breakdown-list-container');
+            const chartBase = document.getElementById('pie-chart-base');
+            const totalAmountDisplay = document.getElementById('breakdown-total-amount');
+            
+            listContainer.innerHTML = '';
+
+            let categoryTotals = {};
+            let totalBreakdownAmount = 0;
+
+            Object.keys(breakdownCategoriesConfig).forEach(cat => {
+                categoryTotals[cat] = 0;
+            });
+
+            filteredTxs.forEach(tx => {
+                let catKey = tx.category.toLowerCase();
+                if(catKey === 'monthly' || catKey === 'yearly') {
+                    catKey = 'savings';
+                }
+                
+                if (breakdownCategoriesConfig[catKey]) {
+                    categoryTotals[catKey] += tx.amount;
+                    totalBreakdownAmount += tx.amount;
+                }
+            });
+
+            totalAmountDisplay.innerText = formatLargeNumber(totalBreakdownAmount);
+
+            let currentDegree = 0;
+            let gradientStops = [];
+
+            Object.keys(breakdownCategoriesConfig).forEach(cat => {
+                const amount = categoryTotals[cat];
+                const percentage = totalBreakdownAmount > 0 ? Math.round((amount / totalBreakdownAmount) * 100) : 0;
+                const config = breakdownCategoriesConfig[cat];
+
+                const listItem = document.createElement('div');
+                listItem.className = `list-item ${config.class}`;
+                listItem.innerHTML = `
+                    <div class="list-item-left">
+                        <div class="dot-icon"></div>
+                        <p>${cat.charAt(0).toUpperCase() + cat.slice(1)}</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="percentage">${percentage}%</span>
+                        <span class="amount">${formatLargeNumber(amount)}</span>
+                    </div>
+                `;
+                listContainer.appendChild(listItem);
+
+                if (totalBreakdownAmount > 0 && amount > 0) {
+                    const degrees = (amount / totalBreakdownAmount) * 360;
+                    const nextDegree = currentDegree + degrees;
+                    gradientStops.push(`${config.color} ${currentDegree}deg ${nextDegree}deg`);
+                    currentDegree = nextDegree;
+                }
+            });
+
+            if (totalBreakdownAmount === 0 || gradientStops.length === 0) {
+                chartBase.style.background = '#1E1B4B';
+            } else {
+                chartBase.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+            }
+        }
+
+        function renderTransactionsList(filter = '') {
+            const container = document.getElementById('transactions-list-container');
+            container.innerHTML = '';
+
+            const filtered = transactions.filter(tx => 
+                tx.category.toLowerCase().includes(filter.toLowerCase()) ||
+                tx.type.toLowerCase().includes(filter.toLowerCase()) ||
+                (tx.note && tx.note.toLowerCase().includes(filter.toLowerCase())) ||
+                (tx.date && tx.date.toLowerCase().includes(filter.toLowerCase()))
+            );
+
+            if(filtered.length === 0) {
+                container.innerHTML = '<p class="text-center text-xs text-gray-500 py-4">ምንም የተመዘገበ መረጃ የለም</p>';
+                return;
+            }
+
+            filtered.reverse().forEach(tx => {
+                const item = document.createElement('div');
+                item.className = 'bg-slate-900 border border-purple-500/20 rounded-xl p-3 flex justify-between items-center';
+                
+                let colorClass = 'text-emerald-400';
+                let sign = '+';
+                if(tx.type === 'expense') { colorClass = 'text-rose-400'; sign = '-'; }
+                if(tx.type === 'savings') { colorClass = 'text-sky-400'; sign = '+'; }
+
+                item.innerHTML = `
+                    <div>
+                        <h4 class="text-xs font-semibold ${colorClass}">${tx.category} (${tx.type})</h4>
+                        <p class="text-[10px] text-gray-400">${tx.date} ${tx.note ? '- ' + tx.note : ''}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-semibold ${colorClass}">${sign} ${tx.amount.toLocaleString()}br</span>
+                        <br><button onclick="deleteTxPrompt(${tx.id})" class="text-[9px] text-rose-500 hover:underline">ሰርዝ</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        window.deleteTxPrompt = function(id) {
+            const title = translations[currentLang].delete_confirm_title;
+            const msg = translations[currentLang].delete_confirm_msg;
+
+            showConfirmationModal(title, msg, () => {
+                transactions = transactions.filter(tx => tx.id !== id);
+                localStorage.setItem('vita_transactions_eth_v7', JSON.stringify(transactions));
+                updateDashboard();
+                renderTransactionsList(document.getElementById('search-input').value);
+            });
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            renderTransactionsList(e.target.value);
+        });
+
+        updateLanguageUI();
+    </script>
+</body>
+</html>
